@@ -8,6 +8,8 @@ import Galeri from "./pages/Galeri";
 import StrukturPegawai from "./pages/StrukturPegawai";
 import ProfilePage from "./pages/Profile";
 import Proyek from "./pages/Proyek";
+import Calculation from "./calculation/pages/Calculation";
+import Report from "./calculation/pages/Report";
 import NotFoundPage from "./pages/404";
 import LayoutProtected from "./components/LayoutProtected";
 import ScrollToTop from "./components/shared/ScroolTop";
@@ -36,6 +38,8 @@ function App() {
           <Route path="galeri" element={<Galeri />} />
           <Route path="kontak" element={<Kontak />} />
           <Route path="profile" element={<ProfilePage />} />
+          <Route path="/calculation" element={<Calculation />} />
+          <Route path="/report" element={<Report />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>

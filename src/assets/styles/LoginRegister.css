@@ -223,7 +223,7 @@ select:disabled {
 .eye-icon {
   position: absolute;
   right: 18px;
-  top: 55%;
+  top: 50%;
   transform: translateY(-50%);
   cursor: pointer;
   color: #7a7a7a;

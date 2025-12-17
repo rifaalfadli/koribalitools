@@ -38,7 +38,9 @@ export const ContactInfo = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: i * 0.15 }}
         >
-          <img src={item.icon} alt={`icon ${item.title}`} />
+          <div className="flex justify-center">
+            <img src={item.icon} alt={`icon ${item.title}`} />
+          </div>
           <h3>{item.title}</h3>
           <p>{item.text}</p>
         </motion.article>

@@ -2,10 +2,10 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
 }
 
 body {
+  font-family: "Poppins", sans-serif;
   line-height: 1.6;
   background: #f8f9fa;
   color: #1a1a1a;
@@ -149,13 +149,13 @@ body {
 
 /* === Home Page === */
 /* Header and Navbar */
-header {
+.header {
   position: sticky;
   top: 0;
   left: 0;
   width: 100%;
   z-index: 1000;
-  background: #fefefe;
+  background-color: rgb(255, 255, 255);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
@@ -210,6 +210,7 @@ header {
 
 .navbar-title h1 {
   font-size: 2em;
+  font-weight: 700;
   letter-spacing: 2px;
   color: #4b0f0f;
 }
@@ -248,6 +249,136 @@ header {
   background: linear-gradient(to right, #0d3b66, #1e6091);
   color: #fefefe;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* =======================
+  DROPDOWN (DESKTOP)
+   ======================= */
+.dropdown {
+  position: relative;
+  user-select: none;
+}
+
+.dropdown-title {
+  cursor: pointer;
+  padding: 0.8em 1.2em;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 8px;
+  transition: 0.25s ease;
+}
+
+.dropdown-title:hover {
+  background: linear-gradient(to right, #0d3b66, #1e6091);
+  color: #fefefe;
+}
+
+/* dropdown hidden by default */
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+
+  background: #f6f7f9;
+  border: 1px solid #e5e7eb;
+  min-width: 180px;
+  padding: 6px 0;
+  gap: 0 !important;
+
+  display: flex;
+  flex-direction: column;
+
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  border-radius: 12px;
+  z-index: 2001;
+
+  transition: 0.25s ease;
+}
+
+/* Arrow border */
+.dropdown-menu::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  border-left: 9px solid transparent;
+  border-right: 9px solid transparent;
+  border-bottom: 9px solid rgba(0, 0, 0, 0.08);
+}
+
+/* Arrow fill */
+.dropdown-menu::before {
+  content: "";
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #ffffff;
+}
+
+.dropdown-overlay {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  z-index: 2000;
+}
+
+/* OPEN STATE (click) */
+.dropdown.open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.dropdown-menu li {
+  width: 100%;
+}
+
+/* item style */
+.dropdown-menu a {
+  width: 100%;
+  padding: 0.7em 1.1em;
+  display: block;
+  color: #374151;
+  transition: 0.15s ease;
+  text-align: center;
+  /* border-radius: 0 !important; */
+}
+
+.dropdown-menu a:hover {
+  background: linear-gradient(to right, #0d3b66, #1e6091);
+  color: #fefefe;
+}
+
+/* Garis pemisah antar item */
+.dropdown-menu li + li {
+  border-top: 1px solid #e5e7eb;
+}
+
+/* =======================
+  MOBILE DROPDOWN
+   ======================= */
+.mobile-sub a {
+  padding-left: 2.5em !important;
+}
+
+.mobile-dropdown-title {
+  font-weight: bold;
+  padding: 0.8em 1.5em;
+  color: #444;
 }
 
 /* Hero */
@@ -289,10 +420,12 @@ header {
 .hero h2 {
   text-align: start;
   font-size: 3.2em;
+  font-weight: 700;
   margin-bottom: 0.5em;
 }
 
 .hero p {
+  font-weight: 500;
   text-align: start;
   font-size: 1.2em;
   margin-bottom: 1.2em;
@@ -326,6 +459,7 @@ header {
 }
 
 .main-tentang h2 {
+  font-weight: 700;
   text-align: center;
   font-size: 2.5em;
   color: #0d3b66;
@@ -364,6 +498,7 @@ header {
 }
 
 .main-layanan h2 {
+  font-weight: 700;
   text-align: center;
   font-size: 2.5rem;
   color: #0d3b66;
@@ -401,6 +536,8 @@ header {
 
 .daftar-layanan h3 {
   color: #0d3b66;
+  font-weight: 700;
+  font-size: 20px;
   margin-bottom: 0.25em;
   transition: color 0.3s ease-in-out;
 }
@@ -410,6 +547,7 @@ header {
 }
 
 .daftar-layanan p {
+  font-size: large;
   transition: color 0.3s ease-in-out;
 }
 
@@ -423,6 +561,7 @@ header {
 }
 
 .main-proyek h2 {
+  font-weight: 700;
   text-align: center;
   font-size: 2.5rem;
   color: #0d3b66;
@@ -478,6 +617,7 @@ header {
 }
 
 .card-proyek h3 {
+  font-weight: 700;
   font-size: 1.25rem;
   margin-bottom: 0.45em;
   text-align: center;
@@ -520,6 +660,7 @@ header {
 }
 
 .main-galeri h2 {
+  font-weight: 700;
   text-align: center;
   font-size: 2.5rem;
   color: #0d3b66;
@@ -717,6 +858,7 @@ header {
 }
 
 .main-kontak h2 {
+  font-weight: 700;
   font-size: 1.8em;
   color: #0d3b66;
   margin-bottom: 1.2rem;
@@ -790,6 +932,7 @@ header {
 }
 
 .footer-mitra h3 {
+  font-weight: 700;
   font-size: 1.1em;
 }
 
@@ -869,6 +1012,7 @@ header {
 }
 
 .footer-links h4 {
+  font-weight: 700;
   font-size: 1em;
   margin-bottom: 0.7em;
   color: #fcd34d;
@@ -1264,6 +1408,7 @@ textarea.form-control {
 
 /* Judul section */
 .container-struktur h2 {
+  font-weight: 700;
   font-size: 2rem;
   margin-bottom: 1rem;
   color: #2c3e50;
@@ -1272,7 +1417,7 @@ textarea.form-control {
 }
 
 /* Tabel divisi */
-table {
+.table-pegawai {
   width: 100%;
   border-collapse: collapse;
   background-color: #ffffff;
@@ -1283,49 +1428,49 @@ table {
 }
 
 /* Tentukan lebar kolom */
-th:nth-child(1),
-td:nth-child(1) {
+.table-pegawai th:nth-child(1),
+.table-pegawai td:nth-child(1) {
   width: 10%; /* Kolom "No" */
   text-align: center;
 }
 
-th:nth-child(2),
-td:nth-child(2) {
+.table-pegawai th:nth-child(2),
+.table-pegawai td:nth-child(2) {
   width: 40%; /* Kolom "Nama" */
 }
 
-th:nth-child(3),
-td:nth-child(3) {
+.table-pegawai th:nth-child(3),
+.table-pegawai td:nth-child(3) {
   width: 50%; /* Kolom "Email" */
   word-break: break-word; /* Supaya email panjang tetap rapi */
 }
 
 /* Header tabel */
-thead {
+.table-pegawai thead {
   background: linear-gradient(to right, #0d3b66, #3399cc);
   color: white;
 }
 
-thead th {
+.table-pegawai thead th {
   padding: 12px;
   font-weight: 600;
   text-align: left;
 }
 
 /* Isi tabel */
-tbody td {
+.table-pegawai tbody td {
   padding: 12px;
   border-top: 1px solid #ecf0f1;
   color: #2c3e50;
 }
 
-tbody tr:hover {
+.table-pegawai tbody tr:hover {
   background-color: #f2f9ff;
   transition: background-color 0.3s ease;
 }
 
 /* Nomor tengah */
-td:first-child {
+.table-pegawai td:first-child {
   text-align: center;
   width: 60px;
 }

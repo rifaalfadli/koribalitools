@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import ProfileMenu from "./ProfileMenu";
+import { ChevronDown } from "lucide-react";
 import "../assets/styles/Style.css";
 import "../assets/styles/Responsive.css";
 
 export default function Header() {
   const [isMobile, setIsMobile] = useState(false);
+  const [openDropdown, setOpenDropdown] = useState(false);
 
   // Update otomatis kalau layar di-resize
   useEffect(() => {
@@ -19,7 +21,14 @@ export default function Header() {
   //  Tampilan untuk layar besar
   // ================================
   const DesktopHeader = () => (
-    <header>
+    <header className="header">
+      {openDropdown && (
+        <div
+          className="dropdown-overlay"
+          onClick={() => setOpenDropdown(false)}
+        />
+      )}
+
       <nav className="navbar">
         <input type="checkbox" id="menu" />
         <div className="navbar-logo">
@@ -65,6 +74,35 @@ export default function Header() {
               <li>
                 <Link to="/galeri">Galeri</Link>
               </li>
+
+              <li
+                className={`dropdown ${openDropdown ? "open" : ""}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenDropdown(!openDropdown);
+                }}
+              >
+                <span className="dropdown-title flex items-center gap-1">
+                  Tools <ChevronDown size={16} />
+                </span>
+
+                <ul className="dropdown-menu">
+                  <li>
+                    <Link
+                      to="/calculation"
+                      onClick={() => setOpenDropdown(false)}
+                    >
+                      Calculation
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/report" onClick={() => setOpenDropdown(false)}>
+                      Report
+                    </Link>
+                  </li>
+                </ul>
+              </li>
+
               <li>
                 <Link to="/kontak">Kontak</Link>
               </li>
@@ -129,6 +167,15 @@ export default function Header() {
             </li>
             <li>
               <Link to="/galeri">Galeri</Link>
+            </li>
+            <li>
+              <span className="mobile-dropdown-title">Tools</span>
+            </li>
+            <li className="mobile-sub">
+              <Link to="/calculation">— Calculation</Link>
+            </li>
+            <li className="mobile-sub">
+              <Link to="/report">— Report</Link>
             </li>
             <li>
               <Link to="/kontak">Kontak</Link>
