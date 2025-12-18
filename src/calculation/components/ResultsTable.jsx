@@ -3,8 +3,7 @@ import PropTypes from "prop-types";
 import { FileText, FileSpreadsheet, CheckCircle2 } from "lucide-react";
 
 export function ResultsTable({ results, onMakeReport }) {
-  const [page, setPage] = useState(0);
-  const total = results.length;
+  const [page] = useState(0);
   const r = results[page]; // current section
 
   return (

@@ -369,7 +369,7 @@ export function PoleCalculator() {
       // Hapus state navigate supaya tidak jalan dua kali
       navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location.pathname, navigate, location.state?.deleteReport]);
 
   // FUNCTION: Show toast error.
   const showToast = (message, type = "error") => {

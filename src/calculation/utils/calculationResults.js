@@ -16,8 +16,8 @@ export function calculatePoleResults(sections) {
     const dUpper = parseFloat(section.diameterUpper) || 0;
     const tLower = parseFloat(section.thicknessLower) || 0;
     const tUpper = parseFloat(section.thicknessUpper) || 0;
-    const h = parseFloat(section.height) || 0;
-    const qty = parseFloat(section.quantity) || 1;
+    // const h = parseFloat(section.height) || 0;
+    // const qty = parseFloat(section.quantity) || 1;
 
     // ======================
     // CALC
