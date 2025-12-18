@@ -13,6 +13,7 @@ import Report from "./calculation/pages/Report";
 import NotFoundPage from "./pages/404";
 import LayoutProtected from "./components/LayoutProtected";
 import ScrollToTop from "./components/shared/ScroolTop";
+import Entry from "./pages/Entry";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
       <ScrollToTop />
       <Routes>
         {/* Public routes */}
+        <Route path="/entry" element={<Entry />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
 

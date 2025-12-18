@@ -1,30 +1,62 @@
+// import { Navigate } from "react-router-dom";
+// import Cookies from "js-cookie";
+
+// const ProtectedRoute = ({ children }) => {
+//   const userCookie = Cookies.get("user");
+
+//   // kalau belum login, arahkan ke /login
+//   if (!userCookie) {
+//     return <Navigate to="/login" replace />;
+//   }
+
+//   try {
+//     const parsedUser = JSON.parse(userCookie);
+//     const userId = parsedUser?.id;
+
+//     // nanti kamu bisa tambah validasi fetch ke server di sini
+//     if (!userId) {
+//       Cookies.remove("user");
+//       return <Navigate to="/login" replace />;
+//     }
+
+//     // kalau lolos validasi, tampilkan halamannya
+//     return children;
+//   } catch (err) {
+//     console.error("Auth error:", err);
+//     Cookies.remove("user");
+//     return <Navigate to="/login" replace />;
+//   }
+// };
+
+// export default ProtectedRoute;
+
 import { Navigate } from "react-router-dom";
 import Cookies from "js-cookie";
 
 const ProtectedRoute = ({ children }) => {
   const userCookie = Cookies.get("user");
 
-  // kalau belum login, arahkan ke /login
+  // 1️⃣ Belum login sama sekali → Entry page
   if (!userCookie) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/entry" replace />;
   }
 
   try {
     const parsedUser = JSON.parse(userCookie);
-    const userId = parsedUser?.id;
+    const { id, role } = parsedUser;
 
-    // nanti kamu bisa tambah validasi fetch ke server di sini
-    if (!userId) {
+    // 2️⃣ Cookie ada tapi tidak valid → Login
+    if (!id || !role) {
       Cookies.remove("user");
-      return <Navigate to="/login" replace />;
+      return <Navigate to="/entry" replace />;
     }
 
-    // kalau lolos validasi, tampilkan halamannya
+    // 3️⃣ Guest & Member boleh masuk
     return children;
   } catch (err) {
     console.error("Auth error:", err);
     Cookies.remove("user");
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/entry" replace />;
   }
 };
 

@@ -232,9 +232,8 @@ export default function Login() {
 
                 <p className="text">
                   <Link to="/register">
-                    Don't have an account? Register here
+                    Don't have an account? Register here.
                   </Link>
-                  .
                 </p>
               </Form>
             )}
