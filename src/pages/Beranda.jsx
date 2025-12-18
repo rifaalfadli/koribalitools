@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion"; // <-- ditambahkan
@@ -32,6 +33,14 @@ export default function Beranda() {
         createPortal(<PageTransition />, document.body)}
       <Header />
       <div className="page-wrapper">
+        <Helmet>
+          <title>CV. KORI BALI</title>
+          <meta
+            name="description"
+            content="CV. KORI BALI adalah perusahaan konstruksi dan perhitungan pole berpengalaman internasional."
+          />
+        </Helmet>
+
         <MainHero />
         <main>
           {/* Tentang */}

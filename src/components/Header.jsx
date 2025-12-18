@@ -63,16 +63,16 @@ export default function Header() {
           <div className="navbar-menu">
             <ul>
               <li>
-                <Link to="/">Beranda</Link>
+                <Link to="/">Home</Link>
               </li>
               <li>
-                <Link to="/struktur">Struktur Pegawai</Link>
+                <Link to="/struktur">Employee Structure</Link>
               </li>
               <li>
-                <Link to="/proyek">Proyek</Link>
+                <Link to="/proyek">Project</Link>
               </li>
               <li>
-                <Link to="/galeri">Galeri</Link>
+                <Link to="/galeri">Gallery</Link>
               </li>
 
               <li
@@ -104,7 +104,7 @@ export default function Header() {
               </li>
 
               <li>
-                <Link to="/kontak">Kontak</Link>
+                <Link to="/kontak">Contact</Link>
               </li>
             </ul>
           </div>
@@ -157,16 +157,16 @@ export default function Header() {
         <div className="navbar-menu">
           <ul>
             <li>
-              <Link to="/">Beranda</Link>
+              <Link to="/">Home</Link>
             </li>
             <li>
-              <Link to="/struktur">Struktur Pegawai</Link>
+              <Link to="/struktur">Employee Structure</Link>
             </li>
             <li>
-              <Link to="/proyek">Proyek</Link>
+              <Link to="/proyek">Project</Link>
             </li>
             <li>
-              <Link to="/galeri">Galeri</Link>
+              <Link to="/galeri">Gallery</Link>
             </li>
             <li>
               <span className="mobile-dropdown-title">Tools</span>
@@ -178,7 +178,7 @@ export default function Header() {
               <Link to="/report">— Report</Link>
             </li>
             <li>
-              <Link to="/kontak">Kontak</Link>
+              <Link to="/kontak">Contact</Link>
             </li>
           </ul>
         </div>
