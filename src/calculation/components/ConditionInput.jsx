@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { RotateCcw, Circle, CheckCircle } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 export function ConditionInput({ condition, onUpdate, onNext }) {
   // State to track whether all condition fields are filled
-  const [isComplete, setIsComplete] = useState(false);
+  // const [isComplete, setIsComplete] = useState(false);
 
   // Check if the form is fully completed whenever condition changes
-  useEffect(() => {
-    const fields = [condition.designStandard, condition.windSpeed];
-    const complete = fields.every((v) => v && v.trim() !== "");
-    setIsComplete(complete);
-  }, [condition]);
+  // useEffect(() => {
+  //   const fields = [condition.designStandard, condition.windSpeed];
+  //   const complete = fields.every((v) => v && v.trim() !== "");
+  //   setIsComplete(complete);
+  // }, [condition]);
 
   // Reset all condition fields
   const handleReset = () => {

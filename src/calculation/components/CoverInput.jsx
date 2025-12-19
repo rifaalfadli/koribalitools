@@ -1,24 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { RotateCcw, Circle, CheckCircle } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
 export function CoverInput({ cover, onUpdate, onMake }) {
   // State to mark whether all mandatory fields have been filled in
-  const [isComplete, setIsComplete] = useState(false);
+  // const [isComplete, setIsComplete] = useState(false);
 
   // Effect: check for any changes to `cover`, then set isComplete
-  useEffect(() => {
-    const fields = [
-      cover.managementMark,
-      cover.calculationNumber,
-      cover.projectName,
-      cover.contentr2,
-      cover.date,
-    ];
+  // useEffect(() => {
+  //   const fields = [
+  //     cover.managementMark,
+  //     cover.calculationNumber,
+  //     cover.projectName,
+  //     cover.contentr2,
+  //     cover.date,
+  //   ];
 
-    // Check all fields are not empty => update state isComplete
-    const complete = fields.every((v) => v && v.trim() !== "");
-    setIsComplete(complete);
-  }, [cover]);
+  //   // Check all fields are not empty => update state isComplete
+  //   const complete = fields.every((v) => v && v.trim() !== "");
+  //   setIsComplete(complete);
+  // }, [cover]);
 
   // Function to reset all inputs to default (empty)
   const handleReset = () => {
