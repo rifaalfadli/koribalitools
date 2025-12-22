@@ -17,7 +17,7 @@ export default function Entry() {
     );
 
     sessionStorage.setItem("showTransition", "true");
-    navigate("/");
+    navigate("/calculation");
   };
 
   return (
