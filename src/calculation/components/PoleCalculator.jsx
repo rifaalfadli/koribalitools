@@ -2,9 +2,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { PoleInput } from "./PoleInput";
 import { ResultsTable } from "./ResultsTable";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CoverInput } from "./CoverInput";
 import { ConditionInput } from "./ConditionInput";
-import { calculatePoleResults } from "../utils/calculationResults";
+import { HeaderCalculationPage } from "./PoleCalculatorHeader";
+import {
+  CoverInputModal,
+  ToastModal,
+  ConfirmResetAllModal,
+  DeleteConfirmationModal,
+} from "./PoleCalculatorModal";
 import {
   goToNextSection,
   updateCover,
@@ -12,16 +17,22 @@ import {
   updateCondition,
   isConditionComplete,
   addSection,
+  removeSection,
+  updateSection,
+  conditionNext,
+  resetCurrent,
+  isSectionComplete,
+  handleCalculateResults,
+  makeReport,
+  deleteReport,
 } from "../utils/poleCalculatorUtils";
 import {
   Plus,
   Calculator,
-  Layout,
   X,
   CheckCircle,
   Circle,
   RotateCcw,
-  AlertCircle,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -107,13 +118,9 @@ export function PoleCalculator() {
 
   // STATE: UI control
   const [activeTab, setActiveTab] = useState("1"); // currently active section
-  // const [showReport, setShowReport] = useState(false); // toggle report page
   const [toast, setToast] = useState(null); // toast notifications { message, type }
   const [confirmDelete, setConfirmDelete] = useState(null); // section deletion confirmation
-
-  // STATE: Cover popup
-  const [showCoverPopup, setShowCoverPopup] = useState(false);
-
+  const [showCoverPopup, setShowCoverPopup] = useState(false); // show cover popup
   const [isExpandedPole, setIsExpandedPole] = useState(true); // expand/collapse pole input
   const [isExpandedCondition, setIsExpandedCondition] = useState(true); // expand/collapse condition input
   const [confirmResetAll, setConfirmResetAll] = useState(false); // reset all confirmation
@@ -129,6 +136,7 @@ export function PoleCalculator() {
       }
     }
   }, []);
+  // Ensure activeTab always points to an existing section
   useEffect(() => {
     if (sections.length === 0) return;
     const isActiveValid = sections.some((s) => s.id === activeTab);
@@ -148,11 +156,12 @@ export function PoleCalculator() {
     return isCoverComplete(cover);
   };
 
-  // FUNCTION: Open Cover Input from ResultsTable
+  // FUNCTION: Open Cover Input
   const handleOpenCoverPopup = () => {
     setShowCoverPopup(true);
   };
 
+  // FUNCTION: Close Cover Input
   const handleCloseCoverPopup = () => {
     setShowCoverPopup(false);
   };
@@ -170,18 +179,7 @@ export function PoleCalculator() {
 
   // FUNCTION: Go to Pole Input after Condition
   const handleConditionNext = () => {
-    // Tutup section condition
-    setIsExpandedCondition(false);
-
-    // Buka section pole
-    setIsExpandedPole(true);
-
-    // Optional: scroll ke pole section
-    setTimeout(() => {
-      document
-        .getElementById("pole-section-title")
-        ?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 300);
+    conditionNext(setIsExpandedCondition, setIsExpandedPole);
   };
 
   // ========================== Function for PoleInput ==========================
@@ -191,52 +189,18 @@ export function PoleCalculator() {
   };
 
   // FUNCTION: Remove a section by ID
-  const removeSection = (id) => {
-    if (sections.length <= 1) return;
-
-    const index = sections.findIndex((s) => s.id === id);
-    const newSections = sections.filter((s) => s.id !== id);
-
-    setSections(newSections);
-
-    if (activeTab === id) {
-      let newIndex;
-
-      if (index > 0) {
-        // ambil section sebelumnya
-        newIndex = index - 1;
-      } else {
-        // kalau hapus index 0 → ambil yang sekarang di 0
-        newIndex = 0;
-      }
-
-      setActiveTab(newSections[newIndex].id);
-    }
+  const handleRemoveSection = (id) => {
+    removeSection(id, sections, setSections, activeTab, setActiveTab);
   };
 
   // FUNCTION: Update a specific section's data
-  const updateSection = (id, updates) => {
-    setSections(sections.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+  const handleUpdateSection = (id, updates) => {
+    updateSection(id, updates, setSections, sections);
   };
 
   // FUNCTION: Reset the active section to default values
   const resetCurrentSection = () => {
-    setSections(
-      sections.map((s) =>
-        s.id === activeTab
-          ? {
-              ...s,
-              name: "",
-              diameterLower: "",
-              diameterUpper: "",
-              thicknessLower: "",
-              thicknessUpper: "",
-              height: "",
-              quantity: "1",
-            }
-          : s
-      )
-    );
+    resetCurrent(setSections, sections, activeTab);
   };
 
   // FUNCTION: Go to the next section tab
@@ -245,144 +209,62 @@ export function PoleCalculator() {
   };
 
   // FUNCTION: Check if a section pole is complete
-  const isSectionComplete = (section) => {
-    if (
-      section.name.trim() === "" ||
-      section.height.trim() === "" ||
-      section.quantity.trim() === ""
-    ) {
-      return false; // fallback
-    }
-    if (section.poleType === "Taper") {
-      // Taper: all lower + upper fields required
-      return (
-        section.diameterLower.trim() !== "" &&
-        section.diameterUpper.trim() !== "" &&
-        section.thicknessLower.trim() !== "" &&
-        section.thicknessUpper.trim() !== ""
-      );
-    } else if (section.poleType === "Straight") {
-      // Straight: only lower required
-      return (
-        section.diameterLower.trim() !== "" &&
-        section.thicknessLower.trim() !== ""
-      );
-    }
-    return false; // fallback
+  const handleIsSectionComplete = (section) => {
+    return isSectionComplete(section);
   };
 
   // ========================== Function for All Form ==========================
   // FUNCTION: Perform calculation for all form
   const calculateResults = () => {
-    // VALIDATION: condition information
-    if (!handleIsConditionComplete()) {
-      showToast("Please complete all Condition Information fields!");
-      return;
-    }
+    const isValid = handleCalculateResults(
+      handleIsConditionComplete,
+      showToast,
+      sections,
+      handleIsSectionComplete,
+      setResults,
+      setShowResults
+    );
 
-    // VALIDATION: each section pole
-    for (let section of sections) {
-      if (!isSectionComplete(section)) {
-        showToast("Please complete all Section Pole fields!");
-        return;
-      }
-    }
+    if (!isValid) return;
 
-    // FUNCTION: Calculate results for all pole sections
-    const calculatedResults = calculatePoleResults(sections);
-
-    setResults(calculatedResults);
-    setShowResults(true);
+    // go to results table
     const target = document.getElementById("results-section");
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // FUNCTION: Full validation before navigating to the report page.
+  // FUNCTION: Full validation before navigating to the report page
   const handleMakeReport = () => {
-    // CHECK 1: If there are no calculation results yet
-    if (results.length === 0) {
-      showToast("No calculation results to generate report!");
-      return;
-    }
-    // CHECK 2: CoverInput is still incomplete
-    if (!handleIsCoverComplete()) {
-      showToast("Please complete all Cover Information before making report!");
-      return;
-    }
-    // CHECK 3: ConditionInput is still incomplete
-    if (!handleIsConditionComplete()) {
-      showToast(
-        "Please complete all Condition Information before making report!"
-      );
-      return;
-    }
-    // CHECK 4: Section (PoleInput) is still empty
-    for (let section of sections) {
-      if (!isSectionComplete(section)) {
-        showToast(
-          "Please complete all Section Pole fields before making report!"
-        );
-        return;
-      }
-    }
+    const isValid = makeReport(
+      results,
+      showToast,
+      handleIsCoverComplete,
+      handleIsConditionComplete,
+      sections,
+      handleIsSectionComplete
+    );
+
+    if (!isValid) return;
 
     sessionStorage.setItem("hasReport", "true");
-    // If all OK => navigate to report
-    navigate("/report", { state: { results, sections, cover, condition } });
+
+    navigate("/report", {
+      state: { results, sections, cover, condition },
+    });
   };
 
   // FUNCTION: Removes all calculation results and hides the results table.
   const handleDeleteReport = () => {
-    // Hapus hasil kalkulasi
-    setResults([]);
-    setShowResults(false);
-
-    // Reset Cover
-    setCover({
-      managementMark: "",
-      calculationNumber: "",
-      projectName: "",
-      contentr2: "",
-      contentr3: "",
-      date: "",
-    });
-
-    // Reset Condition
-    setCondition({
-      designStandard: "",
-      windSpeed: "",
-    });
-
-    // Reset Sections (1 section default)
-    setSections([
-      {
-        id: "1",
-        name: "",
-        material: "STK400",
-        poleType: "Straight",
-        diameterLower: "",
-        diameterUpper: "",
-        thicknessLower: "",
-        thicknessUpper: "",
-        height: "",
-        quantity: "1",
-      },
-    ]);
-
-    // Reset active tab ke section 1
-    setActiveTab("1");
-    sectionIdRef.current = 1;
-
-    // Reset UI control
-    setIsExpandedCondition(true);
-    setIsExpandedPole(true);
-
-    // Hapus semua sessionStorage
-    // sessionStorage.clear();
-    sessionStorage.removeItem("cover");
-    sessionStorage.removeItem("condition");
-    sessionStorage.removeItem("sections");
-    sessionStorage.removeItem("results");
+    deleteReport(
+      setResults,
+      setShowResults,
+      setCover,
+      setCondition,
+      setSections,
+      setActiveTab,
+      setIsExpandedCondition,
+      setIsExpandedPole,
+      sectionIdRef
+    );
   };
 
   // Render the Report Page component, and pass a prop named onDelete Report to that component.
@@ -410,81 +292,7 @@ export function PoleCalculator() {
       {/* ============================================================
         HEADER UTAMA CALCULATION PAGE (Judul + Subjudul + Icon)
       ============================================================ */}
-      <div className="bg-[#0d3b66] py-[25px] px-[40px] shadow-lg sticky top-[70px]  z-40  flex justify-between">
-        <div className="max-w-7xl">
-          <div className="flex items-center gap-4">
-            {/* ICON KIRI */}
-            <div className="bg-[#3399cc] p-[8px] rounded-lg">
-              <Layout className="w-[32px] h-[32px]  text-white" />
-            </div>
-            {/* TEKS HEADER */}
-            <div>
-              <h1 className="text-white mb-0.5 text-l font-semibold">
-                Calculation System
-              </h1>
-              <p className="text-[#3399cc] text-sm">
-                Professional structural analysis tool
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* BUTTONS */}
-        <div className="flex justify-end gap-4">
-          {/* Reset All */}
-          <button
-            onClick={() => setConfirmResetAll(true)}
-            className="flex items-center gap-2 bg-gray-200 text-[#0d3b66] px-7 py-2 rounded-lg font-medium shadow-sm
-            hover:bg-gray-300 hover:shadow-md
-            active:scale-95
-            transition-all duration-200 ease-out"
-          >
-            <RotateCcw className="w-5 h-5" />
-            <span>Reset All</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Reset All Confirmation Modal */}
-      {confirmResetAll && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8">
-            {/* Icon */}
-            <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-              <AlertCircle className="w-8 h-8 text-red-600" />
-            </div>
-
-            {/* Title */}
-            <h2 className="text-gray-900 text-center mb-2">Reset All Data?</h2>
-
-            {/* Description */}
-            <p className="text-gray-600 text-center mb-6">
-              This will remove all form inputs and all calculation results. This
-              action cannot be undone.
-            </p>
-
-            {/* Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setConfirmResetAll(false)}
-                className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={() => {
-                  handleDeleteReport();
-                  setConfirmResetAll(false);
-                }}
-                className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
-              >
-                Reset All
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <HeaderCalculationPage onResetAll={() => setConfirmResetAll(true)} />
 
       {/* ============================================================
         MAIN CONTENT AREA
@@ -593,7 +401,7 @@ export function PoleCalculator() {
               {/* TABS SECTION */}
               <div className="flex items-center gap-2 overflow-x-auto pb-2">
                 {sections.map((section, index) => {
-                  const isComplete = isSectionComplete(section);
+                  const isComplete = handleIsSectionComplete(section);
                   const isActive = activeTab === section.id;
 
                   return (
@@ -645,49 +453,6 @@ export function PoleCalculator() {
               </div>
             </div>
 
-            {/* Delete Confirmation Modal */}
-            {confirmDelete && (
-              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
-                <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 p-8">
-                  {/* Icon */}
-                  <div className="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mx-auto mb-4">
-                    <AlertCircle className="w-8 h-8 text-red-600" />
-                  </div>
-
-                  {/* Title */}
-                  <h2 className="text-gray-900 text-center mb-2">
-                    Delete Step?
-                  </h2>
-
-                  {/* Description */}
-                  <p className="text-gray-600 text-center mb-6">
-                    Are you sure you want to delete this step? This action
-                    cannot be undone.
-                  </p>
-
-                  {/* Buttons */}
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => setConfirmDelete(null)}
-                      className="flex-1 px-6 py-3 bg-gray-100 text-gray-700 rounded-xl hover:bg-gray-200 transition-colors"
-                    >
-                      Cancel
-                    </button>
-
-                    <button
-                      onClick={() => {
-                        removeSection(confirmDelete);
-                        setConfirmDelete(null);
-                      }}
-                      className="flex-1 px-6 py-3 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {/* ACTIVE SECTION INPUT */}
             {activeSection && (
               <div className="p-6">
@@ -696,7 +461,9 @@ export function PoleCalculator() {
                   sectionNumber={
                     sections.findIndex((s) => s.id === activeTab) + 1
                   }
-                  onUpdate={(updates) => updateSection(activeTab, updates)}
+                  onUpdate={(updates) =>
+                    handleUpdateSection(activeTab, updates)
+                  }
                   hideHeader={true}
                 />
 
@@ -797,59 +564,32 @@ export function PoleCalculator() {
           )}
         </div>
       </div>
-      {showCoverPopup && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl mx-4 overflow-hidden animate-fadeIn">
-            {/* HEADER */}
-            <div className="bg-gradient-to-r from-[#0d3b66] to-[#3399cc] p-5 flex items-center justify-between">
-              <h2 className="text-white font-bold text-lg">
-                Input Cover Information
-              </h2>
 
-              <button
-                onClick={handleCloseCoverPopup}
-                className="text-white hover:bg-white/20 rounded-lg p-2 transition"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
+      {/* Cover Input Modal */}
+      <CoverInputModal
+        open={showCoverPopup}
+        onClose={handleCloseCoverPopup}
+        cover={cover}
+        onUpdateCover={handleCoverUpdate}
+        onMakeReport={handleMakeReport}
+      />
 
-            {/* BODY */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto">
-              <CoverInput
-                cover={cover}
-                onUpdate={handleCoverUpdate}
-                onMake={handleMakeReport}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Toast Modal */}
+      <ToastModal toast={toast} onClose={() => setToast(null)} />
 
-      {/* TOAST MODAL */}
-      {toast && (
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-300 ease-in-out">
-          <div className="bg-white rounded-3xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] max-w-fit mx-4 p-7 transform transition-all duration-300 ease-in-out scale-95 animate-fadeIn">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-red-50 text-red-500 border border-red-100 flex-shrink-0">
-                <AlertCircle className="w-7 h-7" />
-              </div>
-              <p className="text-gray-700 text-[16px] font-medium whitespace-nowrap">
-                {toast.message}
-              </p>
-            </div>
-            <div className="flex justify-center">
-              <button
-                onClick={() => setToast(null)}
-                className="px-6 py-3 rounded-xl bg-blue-50 border border-blue-500 text-blue-700 
-                hover:bg-blue-100 font-semibold text-sm transition-all shadow-sm active:scale-95"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Reset Confirmation Modal */}
+      <ConfirmResetAllModal
+        confirmResetAll={confirmResetAll}
+        onClose={() => setConfirmResetAll(false)}
+        handleDeleteReport={handleDeleteReport}
+      />
+
+      {/* Delete Confirmation Modal */}
+      <DeleteConfirmationModal
+        confirmDelete={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        handleRemoveSection={() => handleRemoveSection(confirmDelete)}
+      />
     </div>
   );
 }

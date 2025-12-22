@@ -1,3 +1,5 @@
+import { calculatePoleResults } from "./calculationResults";
+
 // ========================= Function for CoverInput =========================
 // FUNCTION: Update cover data
 export const updateCover = (cover, updates, setCover) => {
@@ -28,6 +30,15 @@ export const isConditionComplete = (condition) => {
   );
 };
 
+// FUNCTIONS: Go to Pole Input after Condition
+export const conditionNext = (setIsExpandedCondition, setIsExpandedPole) => {
+  // Close section condition
+  setIsExpandedCondition(false);
+
+  // Open section pole
+  setIsExpandedPole(true);
+};
+
 // ========================== Function for PoleInput ==========================
 // FUNCTION: Add a new section (max 4 section)
 export const addSection = (
@@ -47,7 +58,7 @@ export const addSection = (
       id: newId,
       name: "",
       material: "STK400",
-      poleType: "Taper",
+      poleType: "Straight",
       diameterLower: "",
       diameterUpper: "",
       thicknessLower: "",
@@ -68,20 +79,220 @@ export const removeSection = (
   activeTab,
   setActiveTab
 ) => {
-  if (sections.length > 1) {
-    const newSections = sections.filter((s) => s.id !== id);
-    setSections(newSections);
+  if (sections.length <= 1) return;
 
-    // if deleted section was active, set first section active
-    if (activeTab === id) {
-      setActiveTab(newSections[0].id);
+  const index = sections.findIndex((s) => s.id === id);
+  const newSections = sections.filter((s) => s.id !== id);
+
+  setSections(newSections);
+
+  if (activeTab === id) {
+    let newIndex;
+
+    if (index > 0) {
+      // ambil section sebelumnya
+      newIndex = index - 1;
+    } else {
+      // kalau hapus index 0 → ambil yang sekarang di 0
+      newIndex = 0;
     }
+
+    setActiveTab(newSections[newIndex].id);
   }
 };
 
+// FUNCTION: Update a specific section's data
+export const updateSection = (id, updates, setSections, sections) => {
+  setSections(sections.map((s) => (s.id === id ? { ...s, ...updates } : s)));
+};
+
+// FUNCTION: Reset the active section to default values
+export const resetCurrent = (setSections, sections, activeTab) => {
+  setSections(
+    sections.map((s) =>
+      s.id === activeTab
+        ? {
+            ...s,
+            name: "",
+            diameterLower: "",
+            diameterUpper: "",
+            thicknessUpper: "",
+            thicknessLower: "",
+            height: "",
+            quantity: "1",
+          }
+        : s
+    )
+  );
+};
+
+// FUNCTION: Go to the next section tab
 export const goToNextSection = (sections, activeTab, setActiveTab) => {
   const currentIndex = sections.findIndex((s) => s.id === activeTab);
   if (currentIndex < sections.length - 1) {
     setActiveTab(sections[currentIndex + 1].id);
   }
+};
+
+// FUNCTION: Check if a section pole is complete
+export const isSectionComplete = (section) => {
+  if (
+    section.name.trim() === "" ||
+    section.height.trim() === "" ||
+    section.quantity.trim() === ""
+  ) {
+    return false; // fallback
+  }
+  if (section.poleType === "Taper") {
+    // Taper: all lower + upper fields required
+    return (
+      section.diameterLower.trim() !== "" &&
+      section.diameterUpper.trim() !== "" &&
+      section.thicknessLower.trim() !== "" &&
+      section.thicknessUpper.trim() !== ""
+    );
+  } else if (section.poleType === "Straight") {
+    // Straight: only lower required
+    return (
+      section.diameterLower.trim() !== "" &&
+      section.thicknessLower.trim() !== ""
+    );
+  }
+  return false; // fallback
+};
+
+// ========================== Function for All Form ==========================
+// FUNCTION: Perform calculation for all form
+export const handleCalculateResults = (
+  handleIsConditionComplete,
+  showToast,
+  sections,
+  handleIsSectionComplete,
+  setResults,
+  setShowResults
+) => {
+  // VALIDATION: condition information
+  if (!handleIsConditionComplete()) {
+    showToast("Please complete all Condition Information fields!");
+    return;
+  }
+
+  // VALIDATION: each section pole
+  for (let section of sections) {
+    if (!handleIsSectionComplete(section)) {
+      showToast("Please complete all Section Pole fields!");
+      return;
+    }
+  }
+
+  // FUNCTION: Calculate results for all pole sections
+  const calculatedResults = calculatePoleResults(sections);
+
+  setResults(calculatedResults);
+  setShowResults(true);
+  // ALL CHECK PASSED
+  return true;
+};
+
+// FUNCTION: Full validation before navigating to the report page
+export const makeReport = (
+  results,
+  showToast,
+  handleIsCoverComplete,
+  handleIsConditionComplete,
+  sections,
+  handleIsSectionComplete
+) => {
+  // CHECK 1: If there are no calculation results yet
+  if (results.length === 0) {
+    showToast("No calculation results to generate report!");
+    return;
+  }
+  // CHECK 2: CoverInput is still incomplete
+  if (!handleIsCoverComplete()) {
+    showToast("Please complete all Cover Information before making report!");
+    return;
+  }
+  // CHECK 3: ConditionInput is still incomplete
+  if (!handleIsConditionComplete()) {
+    showToast(
+      "Please complete all Condition Information before making report!"
+    );
+    return;
+  }
+  // CHECK 4: Section (PoleInput) is still empty
+  for (let section of sections) {
+    if (!handleIsSectionComplete(section)) {
+      showToast(
+        "Please complete all Section Pole fields before making report!"
+      );
+      return;
+    }
+  }
+  // ALL CHECK PASSED
+  return true;
+};
+
+// FUNCTION: Full validation before navigating to the report page
+export const deleteReport = (
+  setResults,
+  setShowResults,
+  setCover,
+  setCondition,
+  setSections,
+  setActiveTab,
+  setIsExpandedCondition,
+  setIsExpandedPole,
+  sectionIdRef
+) => {
+  // Hapus hasil kalkulasi
+  setResults([]);
+  setShowResults(false);
+
+  // Reset Cover
+  setCover({
+    managementMark: "",
+    calculationNumber: "",
+    projectName: "",
+    contentr2: "",
+    contentr3: "",
+    date: "",
+  });
+
+  // Reset Condition
+  setCondition({
+    designStandard: "",
+    windSpeed: "",
+  });
+
+  // Reset Sections (1 section default)
+  setSections([
+    {
+      id: "1",
+      name: "",
+      material: "STK400",
+      poleType: "Straight",
+      diameterLower: "",
+      diameterUpper: "",
+      thicknessLower: "",
+      thicknessUpper: "",
+      height: "",
+      quantity: "1",
+    },
+  ]);
+
+  // Reset active tab ke section 1
+  setActiveTab("1");
+  sectionIdRef.current = 1;
+
+  // Reset UI control
+  setIsExpandedCondition(true);
+  setIsExpandedPole(true);
+
+  // Hapus semua sessionStorage
+  // sessionStorage.clear();
+  sessionStorage.removeItem("cover");
+  sessionStorage.removeItem("condition");
+  sessionStorage.removeItem("sections");
+  sessionStorage.removeItem("results");
 };
