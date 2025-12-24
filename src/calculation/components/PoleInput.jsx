@@ -1,12 +1,31 @@
 import React from "react";
-import { Maximize2 } from "lucide-react";
+import { Maximize2, AlertCircle } from "lucide-react";
 
 export function PoleInput({
   section,
   sectionNumber,
   onUpdate,
   hideHeader = false,
+  errors,
 }) {
+  // Function to helper class input
+  const inputClass = (hasError) =>
+    `w-full px-4 py-2.5 rounded-lg outline-none transition-all border
+  ${
+    hasError
+      ? "border border-red-500 bg-[#fff5f5] ring-1 ring-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  }`;
+
+  // Function to helper text error
+  const ErrorText = ({ show, text }) =>
+    show ? (
+      <div className="absolute left-0 -bottom-5 flex items-center gap-1 text-[11px] text-red-500">
+        <AlertCircle size={12} />
+        <span>{text}</span>
+      </div>
+    ) : null;
+
   return (
     <div className="space-y-6">
       {/* Header section title */}
@@ -37,24 +56,25 @@ export function PoleInput({
 
         {/* Section Name input */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-gray-700 mb-2">Section Name</label>
+          <div className="relative">
+            <label className="block text-gray-700 mb-2">Pole Name</label>
             <input
               type="text"
               value={section.name}
               onChange={(e) => onUpdate({ name: e.target.value })}
               placeholder="e.g., 支柱-1"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
+              className={inputClass(errors.name)}
             />
+            <ErrorText show={errors.name} text="Required field" />
           </div>
 
           {/* Material Type selector */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 mb-2">Material Type</label>
             <select
               value={section.material}
               onChange={(e) => onUpdate({ material: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
+              className={inputClass(errors.material)}
             >
               <option value="STK400">STK400</option>
               <option value="STK490">STK490</option>
@@ -62,6 +82,7 @@ export function PoleInput({
               <option value="STK540">STK540</option>
               <option value="STKR400">STKR400</option>
             </select>
+            <ErrorText show={errors.material} text="Required field" />
           </div>
 
           {/* Pole Type selector */}
@@ -91,7 +112,7 @@ export function PoleInput({
           {section.poleType === "Straight" ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Straight Diameter */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Diameter Pole
                 </label>
@@ -102,17 +123,17 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ diameterLower: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.diameterLower)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.diameterLower} text="Required field" />
               </div>
 
               {/* Straight Thickness */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Thickness Pole
                 </label>
@@ -123,20 +144,20 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ thicknessLower: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.thicknessLower)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.thicknessLower} text="Required field" />
               </div>
             </div>
           ) : (
             /* Taper type => 4 columns */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
               {/* Diameter Lower */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Diameter Lower
                 </label>
@@ -147,17 +168,17 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ diameterLower: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.diameterLower)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.diameterLower} text="Required field" />
               </div>
 
               {/* Diameter Upper */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Diameter Upper
                 </label>
@@ -168,17 +189,17 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ diameterUpper: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.diameterUpper)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.diameterUpper} text="Required field" />
               </div>
 
               {/* Thickness Lower */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Thickness Lower
                 </label>
@@ -189,17 +210,17 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ thicknessLower: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.thicknessLower)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.thicknessLower} text="Required field" />
               </div>
 
               {/* Thickness Upper */}
-              <div>
+              <div className="relative">
                 <label className="block text-gray-600 mb-2">
                   Thickness Upper
                 </label>
@@ -210,13 +231,13 @@ export function PoleInput({
                     onChange={(e) =>
                       onUpdate({ thicknessUpper: e.target.value })
                     }
-                    className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                    focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                    className={inputClass(errors.thicknessUpper)}
                   />
                   <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                     mm
                   </span>
                 </div>
+                <ErrorText show={errors.thicknessUpper} text="Required field" />
               </div>
             </div>
           )}
@@ -231,23 +252,24 @@ export function PoleInput({
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Height input */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 mb-2">Height (Z/H)</label>
             <div className="relative">
               <input
                 type="number"
                 value={section.height}
                 onChange={(e) => onUpdate({ height: e.target.value })}
-                className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
+                className={inputClass(errors.height)}
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                 mm
               </span>
             </div>
+            <ErrorText show={errors.height} text="Required field" />
           </div>
 
           {/* Quantity input */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 mb-2">Quantity</label>
             <input
               type="number"
@@ -255,8 +277,9 @@ export function PoleInput({
               onChange={(e) => onUpdate({ quantity: e.target.value })}
               placeholder="1"
               min="1"
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
+              className={inputClass(errors.quantity)}
             />
+            <ErrorText show={errors.quantity} text="Required field" />
           </div>
         </div>
       </div>

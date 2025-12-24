@@ -1,6 +1,6 @@
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, AlertCircle } from "lucide-react";
 
-export function ConditionInput({ condition, onUpdate, onNext }) {
+export function ConditionInput({ condition, onUpdate, onNext, errors }) {
   // Reset all condition fields
   const handleReset = () => {
     onUpdate({
@@ -9,6 +9,24 @@ export function ConditionInput({ condition, onUpdate, onNext }) {
     });
   };
 
+  // Function to helper class input
+  const inputClass = (hasError) =>
+    `w-full px-4 py-2.5 rounded-lg outline-none transition-all border
+  ${
+    hasError
+      ? "border border-red-500 bg-[#fff5f5] ring-1 ring-red-200 focus:border-red-500 focus:ring-1 focus:ring-red-200"
+      : "border-gray-300 bg-white focus:border-[#3399cc] focus:ring-1 focus:ring-[#3399cc]"
+  }`;
+
+  // Function to helper text error
+  const ErrorText = ({ show, text }) =>
+    show ? (
+      <div className="absolute left-0 -bottom-5 flex items-center gap-1 text-[11px] text-red-500">
+        <AlertCircle size={12} />
+        <span>{text}</span>
+      </div>
+    ) : null;
+
   return (
     <div>
       {/* FORM CARD WRAPPER */}
@@ -16,12 +34,12 @@ export function ConditionInput({ condition, onUpdate, onNext }) {
         {/* 2-Column Grid (Responsive) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-8">
           {/* FIELD : Design Standard Dropdown */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 mb-2">Design Standard</label>
             <select
               value={condition.designStandard}
               onChange={(e) => onUpdate({ designStandard: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all bg-white"
+              className={inputClass(errors.designStandard)}
             >
               <option value="" disabled selected>
                 Select Design Standard
@@ -31,10 +49,11 @@ export function ConditionInput({ condition, onUpdate, onNext }) {
               <option value="jil">JIL</option>
               <option value="haiden">Haiden</option>
             </select>
+            <ErrorText show={errors.designStandard} text="Required field" />
           </div>
 
           {/* FIELD : Design Wind Speed Input */}
-          <div>
+          <div className="relative">
             <label className="block text-gray-700 mb-2">
               Design Wind Speed
             </label>
@@ -43,13 +62,13 @@ export function ConditionInput({ condition, onUpdate, onNext }) {
                 type="number"
                 value={condition.windSpeed}
                 onChange={(e) => onUpdate({ windSpeed: e.target.value })}
-                className="w-full pl-4 pr-12 py-2.5 border border-gray-300 rounded-lg
-                focus:ring-2 focus:ring-[#3399cc] focus:border-[#3399cc] outline-none transition-all"
+                className={inputClass(errors.windSpeed)}
               />
               <span className="absolute right-4 top-1/2 -translate-y-1/2 text-black-400">
                 m/s
               </span>
             </div>
+            <ErrorText show={errors.windSpeed} text="Required field" />
           </div>
         </div>
 
